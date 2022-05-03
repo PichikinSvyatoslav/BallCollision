@@ -70,48 +70,48 @@ void processCollision(std::vector<T>&& vec) // Применим семантику перемещения дл
         for (int i = 0; i < vecSize - OFFSET; i++)
         {
             // Проверка на коллизии. 
-            for (int j = i; j < (i + OFFSET); j++)
+            for (int j = i + 1; j < (i + OFFSET); j++)
             {
                 // Проверяем, есть ли пересечение у следующих отрезков по оси в количестве OFFSET
-                if ((vec[j].pos.x + vec[j].r) > (vec[j + 1].pos.x - vec[j + 1].r))
+                if ((vec[i].pos.x + vec[i].r) > (vec[j].pos.x - vec[j].r))
                 {
                     // Если расстояние между центрами окружностей в декартовых координатах меньше суммы
                     // радиусов, то столкновение.
-                    double range = sqrt(pow(vec[i].pos.x - vec[i + 1].pos.x, 2) + pow(vec[i].pos.y - vec[i + 1].pos.y, 2));
+                    double range = sqrt(pow(vec[i].pos.x - vec[j].pos.x, 2) + pow(vec[i].pos.y - vec[j].pos.y, 2));
 
                     // Посредством векторной алгебры и физики необходимо изменить вектора траектории полета.
                     // По-хорошему, необходимо проверять на коллизии еще на этапе спауна, ибо багаются друг в друге.
-                    if (range <= (vec[i].r + vec[i + 1].r))
+                    if (range <= (vec[i].r + vec[j].r))
                     {
                         // Взятая из интернета векторная арифметика, адаптированная под решение задачи.
 
-                        float nx = (vec[i + 1].pos.x - vec[i].pos.x) / range;
-                        float ny = (vec[i + 1].pos.y - vec[i].pos.y) / range;
+                        float nx = (vec[j].pos.x - vec[i].pos.x) / range;
+                        float ny = (vec[j].pos.y - vec[i].pos.y) / range;
 
                         float tx = -ny;
                         float ty = nx;
 
                         float dpTan1 = vec[i].dir.x * tx + vec[i].dir.y * ty;
-                        float dpTan2 = vec[i + 1].dir.x * tx + vec[i + 1].dir.y * ty;
+                        float dpTan2 = vec[j].dir.x * tx + vec[j].dir.y * ty;
 
                         float dpNorm1 = vec[i].dir.x * nx + vec[i].dir.y * ny;
-                        float dpNorm2 = vec[i + 1].dir.x * nx + vec[i + 1].dir.y * ny;
+                        float dpNorm2 = vec[j].dir.x * nx + vec[j].dir.y * ny;
 
                         // Вместо массы воткнем тут радиус по условию задачи.
-                        float m1 = (dpNorm1 * (vec[i].r - vec[i + 1].r) + 2.0f * vec[i + 1].r * dpNorm2) / (vec[i].r + vec[i + 1].r);
-                        float m2 = (dpNorm2 * (vec[i + 1].r - vec[i].r) + 2.0f * vec[i].r * dpNorm1) / (vec[i].r + vec[i + 1].r);
+                        float m1 = (dpNorm1 * (vec[i].r - vec[j].r) + 2.0f * vec[j].r * dpNorm2) / (vec[i].r + vec[j].r);
+                        float m2 = (dpNorm2 * (vec[j].r - vec[i].r) + 2.0f * vec[i].r * dpNorm1) / (vec[i].r + vec[j].r);
 
                         // Итоговый пересчет скоростей.
                         vec[i].dir.x = tx * dpTan1 + nx * m1;
                         vec[i].dir.y = ty * dpTan1 + ny * m1;
-                        vec[i + 1].dir.x = tx * dpTan2 + nx * m2;
-                        vec[i + 1].dir.y = ty * dpTan2 + ny * m2;
+                        vec[j].dir.x = tx * dpTan2 + nx * m2;
+                        vec[j].dir.y = ty * dpTan2 + ny * m2;
 
                         // Смена цветов объектов при коллизии. Заодно видно, когда метод работает криво.
                         (vec[i].getFillColor() == sf::Color::Red) ?
                             vec[i].setFillColor(sf::Color::Blue) : vec[i].setFillColor(sf::Color::Red);
-                        (vec[i + 1].getFillColor() == sf::Color::Red) ?
-                            vec[i + 1].setFillColor(sf::Color::Blue) : vec[i + 1].setFillColor(sf::Color::Red);                     
+                        (vec[j].getFillColor() == sf::Color::Red) ?
+                            vec[j].setFillColor(sf::Color::Blue) : vec[j].setFillColor(sf::Color::Red);                     
                     }
                 }
             }          
