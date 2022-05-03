@@ -69,9 +69,20 @@ void processCollision(std::vector<T>&& vec) // ѕрименим семантику перемещени€ дл
 
         for (int i = 0; i < vecSize - OFFSET; i++)
         {
+            if (vec[i].isCollided)
+            {
+                vec[i].isCollided = false;
+                continue;
+            }
             // ѕроверка на коллизии. 
             for (int j = i + 1; j < (i + OFFSET); j++)
             {
+                if (vec[j].isCollided)
+                {
+                    vec[j].isCollided = false;
+                    continue;
+                }
+
                 // ѕровер€ем, есть ли пересечение у следующих отрезков по оси в количестве OFFSET
                 if ((vec[i].pos.x + vec[i].r) > (vec[j].pos.x - vec[j].r))
                 {
@@ -111,7 +122,10 @@ void processCollision(std::vector<T>&& vec) // ѕрименим семантику перемещени€ дл
                         (vec[i].getFillColor() == sf::Color::Red) ?
                             vec[i].setFillColor(sf::Color::Blue) : vec[i].setFillColor(sf::Color::Red);
                         (vec[j].getFillColor() == sf::Color::Red) ?
-                            vec[j].setFillColor(sf::Color::Blue) : vec[j].setFillColor(sf::Color::Red);                     
+                            vec[j].setFillColor(sf::Color::Blue) : vec[j].setFillColor(sf::Color::Red);    
+
+                        vec[i].isCollided = true;
+                        vec[j].isCollided = true;
                     }
                 }
             }          
