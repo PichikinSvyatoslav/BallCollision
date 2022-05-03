@@ -24,8 +24,7 @@ public:
         pos.x = rand() % (WINDOW_X - (int)r * 2 - 1);
         pos.y = rand() % (WINDOW_Y - (int)r * 2 - 1);
         this->setRadius(r);
-        // Нарандомим цветов ради развлечения.
-        this->setFillColor(sf::Color(rand() % 256, rand() % 256, rand() % 256, 255));
+        this->setFillColor(sf::Color::Blue);
     }
 
     void draw(sf::RenderWindow& window)
@@ -47,6 +46,7 @@ protected:
     sf::Vector2f dir;
     float r = 0;
     float speed = 0;
+    bool isCollided = 0;
 };
 
 template <class T>
@@ -70,20 +70,18 @@ void processCollision(std::vector<T>&& vec) // Применим семантику перемещения дл
         for (int i = 0; i < vecSize - OFFSET; i++)
         {
             // Проверка на коллизии. 
-
             for (int j = i; j < (i + OFFSET); j++)
             {
                 // Проверяем, есть ли пересечение у следующих отрезков по оси в количестве OFFSET
                 if ((vec[j].pos.x + vec[j].r) > (vec[j + 1].pos.x - vec[j + 1].r))
                 {
-
                     // Если расстояние между центрами окружностей в декартовых координатах меньше суммы
                     // радиусов, то столкновение.
                     double range = sqrt(pow(vec[i].pos.x - vec[i + 1].pos.x, 2) + pow(vec[i].pos.y - vec[i + 1].pos.y, 2));
 
                     // Посредством векторной алгебры и физики необходимо изменить вектора траектории полета.
                     // По-хорошему, необходимо проверять на коллизии еще на этапе спауна, ибо багаются друг в друге.
-                    if ((range) <= (vec[i].r + vec[i + 1].r))
+                    if (range <= (vec[i].r + vec[i + 1].r))
                     {
                         // Взятая из интернета векторная арифметика, адаптированная под решение задачи.
 
@@ -110,8 +108,10 @@ void processCollision(std::vector<T>&& vec) // Применим семантику перемещения дл
                         vec[i + 1].dir.y = ty * dpTan2 + ny * m2;
 
                         // Смена цветов объектов при коллизии. Заодно видно, когда метод работает криво.
-                        vec[i].setFillColor(sf::Color(rand() % 256, rand() % 256, rand() % 256, 255));
-                        vec[i + 1].setFillColor(sf::Color(rand() % 256, rand() % 256, rand() % 256, 255));
+                        (vec[i].getFillColor() == sf::Color::Red) ?
+                            vec[i].setFillColor(sf::Color::Blue) : vec[i].setFillColor(sf::Color::Red);
+                        (vec[i + 1].getFillColor() == sf::Color::Red) ?
+                            vec[i + 1].setFillColor(sf::Color::Blue) : vec[i + 1].setFillColor(sf::Color::Red);                     
                     }
                 }
             }          
